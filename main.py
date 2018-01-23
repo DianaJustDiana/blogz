@@ -6,7 +6,7 @@ app = Flask(__name__)
 #This line provides insight into errors.
 app.config['DEBUG'] = True
 #This line connects my files to the db.
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:lilycat12@localhost:8889/build-a-blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:password@localhost:8889/blogz'
 #This line provides helpful info in the terminal.
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
