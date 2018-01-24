@@ -33,7 +33,7 @@ class Blog(db.Model):
         self.owner = owner
     #Ends new for blogz
 
-#Starts new for blogz
+#Starts tweak for blogz
 class User(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
@@ -43,7 +43,7 @@ class User(db.Model):
     password = db.Column(db.String(30))
     #Doesn't add column in db, but sets up relationship.
     blogs = db.relationship('Blog', backref='owner')
-#Ends new for blogz
+#Ends tweak for blogz
 
 @app.route('/blog', methods=['POST', 'GET'])
 def index():
@@ -62,6 +62,7 @@ def new_post():
     if request.method == 'POST':
         title = request.form['title']
         body = request.form['body']
+        
         if len(title) == 0 and len(body) == 0:
             flash("Whoa, slow down! You were a little quick to hit that button.", 'error')
             return render_template('new_post.html')        
@@ -73,8 +74,10 @@ def new_post():
             return render_template('new_post.html', title=title)
 
         else:
-
-            new_entry = Blog(title, body)
+            #Starts tweak for blogz
+            new_entry = Blog(title, body, owner)
+            #Ends tweak for blogz
+            
             db.session.add(new_entry)
             db.session.flush()
             db.session.commit()
