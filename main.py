@@ -28,6 +28,18 @@ class Blog(db.Model):
         self.title = title
         self.body = body
 
+#Starts new for blogz
+class User(db.Model):
+    
+    id = db.Column(db.Integer, primary_key=True)
+    #Limited username to 30 characters; arbitrary cutoff.
+    username = db.Column(db.String(30))
+    #Limited password to 30 characters; arbitrary cutoff.
+    password = db.Column(db.String(30))
+    #Doesn't add column in db, but sets up relationship.
+    blogs = db.relationship('Blog', backref='user')
+#Ends new for blogz
+
 @app.route('/blog', methods=['POST', 'GET'])
 def index():
 
