@@ -43,6 +43,10 @@ class User(db.Model):
     password = db.Column(db.String(30))
     #Doesn't add column in db, but sets up relationship.
     blogs = db.relationship('Blog', backref='owner')
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
 #Ends tweak for blogz
 
 #Starts new for blogz
@@ -64,7 +68,7 @@ def login():
             #second parameter is category; it connects to html in base.html
             flash("Sorry, that's not your password. Try again, please.", 'error')
             #Redisplay the form. Populate the username with the previously entered info.
-            return render_template('login.html', user=user)
+            return render_template('login.html', username=username)
 
         #In case the user doesn't exist at all.
         else:
