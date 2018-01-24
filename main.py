@@ -24,9 +24,14 @@ class Blog(db.Model):
     #Limited body to 14,000 characters because that's about 2000 words.
     body = db.Column(db.String(14000))
 
-    def __init__(self, title, body):
+    #Starts new for blogz
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __init__(self, title, body, owner):
         self.title = title
         self.body = body
+        self.owner = owner
+    #Ends new for blogz
 
 #Starts new for blogz
 class User(db.Model):
@@ -37,7 +42,7 @@ class User(db.Model):
     #Limited password to 30 characters; arbitrary cutoff.
     password = db.Column(db.String(30))
     #Doesn't add column in db, but sets up relationship.
-    blogs = db.relationship('Blog', backref='user')
+    blogs = db.relationship('Blog', backref='owner')
 #Ends new for blogz
 
 @app.route('/blog', methods=['POST', 'GET'])
