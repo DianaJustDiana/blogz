@@ -45,6 +45,36 @@ class User(db.Model):
     blogs = db.relationship('Blog', backref='owner')
 #Ends tweak for blogz
 
+#Starts new for blogz
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        #First part checks if user exists (True) and second part checks if password matches.
+        if user and user.password == password:
+            #remember the user by adding dict key of username
+            session['username'] = username
+            #add flash message to display to the user
+            flash('Logged in')
+            return redirect('/newpost')
+        #In case user exists (True) but password is wrong.
+        elif user and user.password != password:
+            #second parameter is category; it connects to html in base.html
+            flash("Sorry, that's not your password. Try again, please.", 'error')
+            #Redisplay the form. Populate the username with the previously entered info.
+            return render_template('login.html', user=user)
+
+        #In case the user doesn't exist at all.
+        else:
+            #second parameter is category; it connects to html in base.html
+            flash("Hmm. I don't remember that username. Let's get you signed up.", 'error')
+            return redirect('/signup')
+
+    return render_template('login.html')
+#Ends new for blogz
+
 @app.route('/blog', methods=['POST', 'GET'])
 def index():
 
@@ -77,7 +107,7 @@ def new_post():
             #Starts tweak for blogz
             new_entry = Blog(title, body, owner)
             #Ends tweak for blogz
-            
+
             db.session.add(new_entry)
             db.session.flush()
             db.session.commit()
@@ -86,132 +116,6 @@ def new_post():
             return redirect("/blog?id={0}".format(single_id))
 
     return render_template('new_post.html')
-
-
-
-
-
-        
-          
-"""
-class Task(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120))
-    completed = db.Column(db.Boolean)
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
-
-    def __init__(self, name, owner):
-        self.name = name
-        self.completed = False
-        self.owner = owner
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    #add unique=True so there can't be 2 records with same email
-    email = db.Column(db.String(120), unique=True)
-    password = db.Column(db.String(120))
-    #doesn't add column in db, but sets up connection
-    tasks = db.relationship('Task', backref='owner')
-
-    def __init__(self, email, password):
-        self.email = email
-        self.password = password
-
-#check to see if user is still logged in
-#special function, special decorator -- not a request handler
-#this runs before EVERY request and checks ALL incoming requests
-@app.before_request
-def require_login():
-    #whitelist so people not logged in can see login page
-    #people not logged in can see these
-    allowed_routes = ['login', 'register']
-    if request.endpoint not in allowed_routes and 'email' not in session:
-        return redirect('/login')
-
-@app.route('/login', methods=['POST', 'GET'])
-def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        user = User.query.filter_by(email=email).first()
-        #first part checks if user exists (True) and second part checks if password matches
-        if user and user.password == password:
-            #remember the user by adding dict key of email
-            session['email'] = email
-            #add flash message to display to the user
-            flash('Logged in')
-            return redirect('/')
-        else:
-            #second parameter is category; it connects to html in base.html
-            flash('User password incorrect or user does not exist', 'error')
-
-    return render_template('login.html')
-
-@app.route('/register', methods=['POST', 'GET'])
-def register():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        verify = request.form['verify']
-
-        #TODO validate
-
-        #see if user already exists in our db
-        existing_user = User.query.filter_by(email=email).first()
-        if not existing_user:
-            new_user = User(email, password)
-            db.session.add(new_user)
-            db.session.commit()
-            #remember the user by adding dict key of email
-            session['email'] = email
-            return redirect('/')
-        else:
-            #TODO tell user they already exist in db
-            return "<h1>Duplicate user</h1>"
-
-
-    return render_template('register.html')
-
-@app.route('/logout')
-def logout():
-    del session['email']
-    return redirect('/')
-
-
-###Start used pieces of this part
-@app.route('/', methods=['POST', 'GET'])
-def index():
-    
-    #specifies that the owner is the user currently signed in
-    owner = User.query.filter_by(email=session['email']).first()
-
-
-    if request.method == 'POST':
-        task_name = request.form['task']
-        new_task = Task(task_name, owner)
-        db.session.add(new_task)
-        db.session.commit()
-
-    #owner=owner means left query for tasks based on the owner property, and right the owner variable defined above
-    tasks = Task.query.filter_by(completed=False,owner=owner).all()  
-    completed_tasks = Task.query.filter_by(completed=True,owner=owner).all()
-    return render_template('todos.html',title="Get It Done!", tasks=tasks, completed_tasks=completed_tasks)
-###End used pieces of this part
-
-
-@app.route('/delete-task', methods=['POST'])
-def delete_task():
-    task_id = int(request.form['task-id'])
-    task = Task.query.get(task_id)
-    task.completed =  True
-    db.session.add(task)
-    db.session.commit()
-
-    return redirect("/")
-
-"""
 
 if __name__ == '__main__':
     app.run()
