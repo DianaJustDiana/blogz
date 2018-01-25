@@ -121,36 +121,42 @@ def validate_input(username, password, verify):
     
     #verify = request.form['verify']
     verify_error = ""
-
     #Use this on username.
     if len(username) == 0:
         username_error = "Oops! This field can't be empty. Please choose a username 3-30 characters long."
+
     elif not 3 < len(username) <= 30:
         username_error = "I'm sorry, but your username must be 3-30 characters."
+
     elif " " in username:
         username_error = "Hmm ... username can't contain a space."
 
     #Use this on password:
     if len(password) == 0:
-        password_error = "Oops! This field can't be empty. Please choose a password 1-30 characters long."
+        password_error = "Oops! This field can't be empty. Please choose a password 3-30 characters long."
+
     elif not 3 <= len(password) <= 30:
-        password_error = "I'm sorry, but password must be 3-30 characters."  
+        password_error = "I'm sorry, but password must be 3-30 characters." 
+ 
     elif " " in password:
         password_error = "Hmm ... password can't contain a space."
 
     #Use this on verify.
-    if password != verify:
+    if password != verify and not password_error:
         verify_error = "Whoops! These didn't match. Please try again."
 
     ###LEFT OFF HERE        
-    #if not username_error and not password_error and not verify_error: 
-    #    return render_template('new_post.html', username=username, title='Success!')
-    #else:
-    #    return render_template('signup.html', username=username, username_error=username_error, password_error=password_error, verify_error=verify_error, title="Let's try again")
     if not username_error and not password_error and not verify_error:
         return True
     else:
-        return render_template('signup.html', username=username, username_error=username_error, password_error=password_error, verify_error=verify_error, title="Let's try again")
+        if username_error:
+            flash(username_error, 'error')
+        elif password_error:
+            flash(password_error, 'error')
+        elif verify_error:
+            flash(verify_error, 'error')
+        return render_template('signup.html', username=username)
+
     
 #Ends new for blogz
 
