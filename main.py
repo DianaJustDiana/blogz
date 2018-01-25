@@ -78,6 +78,80 @@ def login():
             return redirect('/signup')
 
     return render_template('login.html')
+
+@app.route('/signup', methods=['POST', 'GET'])
+def signup():
+    
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        verify = request.form['verify']
+
+        #See if user already exists in db.
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            #Tell user they already exist in db.
+            flash("I'm sorry, but that username is already taken.", 'error')
+
+            return redirect('/signup')
+        
+        else:
+            #Call validate_input() here. 
+            if validate_input(username, password, verify) == True:
+
+                new_user = User(username, password)
+                db.session.add(new_user)
+                db.session.flush()
+                db.session.commit()
+                #Remember the user by adding dict key of username.
+                session['username'] = username
+            
+                #####LEFT OFF HERE
+                return redirect('/newpost')
+            
+
+    return render_template('signup.html')
+
+def validate_input(username, password, verify):
+    #username = request.form['username']
+    username_error = ""
+
+    #password = request.form['password']
+    password_error = ""
+    
+    #verify = request.form['verify']
+    verify_error = ""
+
+    #Use this on username.
+    if len(username) == 0:
+        username_error = "Oops! This field can't be empty. Please choose a username 3-30 characters long."
+    elif not 3 < len(username) <= 30:
+        username_error = "I'm sorry, but your username must be 3-30 characters."
+    elif " " in username:
+        username_error = "Hmm ... username can't contain a space."
+
+    #Use this on password:
+    if len(password) == 0:
+        password_error = "Oops! This field can't be empty. Please choose a password 1-30 characters long."
+    elif not 3 <= len(password) <= 30:
+        password_error = "I'm sorry, but password must be 3-30 characters."  
+    elif " " in password:
+        password_error = "Hmm ... password can't contain a space."
+
+    #Use this on verify.
+    if password != verify:
+        verify_error = "Whoops! These didn't match. Please try again."
+
+    ###LEFT OFF HERE        
+    #if not username_error and not password_error and not verify_error: 
+    #    return render_template('new_post.html', username=username, title='Success!')
+    #else:
+    #    return render_template('signup.html', username=username, username_error=username_error, password_error=password_error, verify_error=verify_error, title="Let's try again")
+    if not username_error and not password_error and not verify_error:
+        return True
+    else:
+        return render_template('signup.html', username=username, username_error=username_error, password_error=password_error, verify_error=verify_error, title="Let's try again")
+    
 #Ends new for blogz
 
 @app.route('/blog', methods=['POST', 'GET'])
