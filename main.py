@@ -57,18 +57,19 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
         #First part checks if user exists (True) and second part checks if password matches.
-        if user and user.password == password:
-            #remember the user by adding dict key of username
-            session['username'] = username
-            #add flash message to display to the user
-            flash('Logged in')
-            return redirect('/newpost')
-        #In case user exists (True) but password is wrong.
-        elif user and user.password != password:
-            #second parameter is category; it connects to html in base.html
-            flash("Sorry, that's not your password. Try again, please.", 'error')
-            #Redisplay the form. Populate the username with the previously entered info.
-            return render_template('login.html', username=username)
+        if user:
+            if user.password == password:
+                #remember the user by adding dict key of username
+                session['username'] = username
+                #add flash message to display to the user
+                flash('Logged in')
+                return redirect('/newpost')
+            #In case user exists (True) but password is wrong.
+            else: 
+                #second parameter is category; it connects to html in base.html
+                flash("Sorry, that's not your password. Try again, please.", 'error')
+                #Redisplay the form. Populate the username with the previously entered info.
+                return render_template('login.html', username=username)
 
         #In case the user doesn't exist at all.
         else:
