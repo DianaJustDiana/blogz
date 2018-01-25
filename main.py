@@ -63,8 +63,8 @@ def require_login():
         return redirect('/login')
 
 @app.route('/', methods=['GET'])
-def home():
-    return render_template('/home')    
+def index():
+    return render_template('/index')    
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
