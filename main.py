@@ -50,6 +50,18 @@ class User(db.Model):
 #Ends tweak for blogz
 
 #Starts new for blogz
+
+#Check to see if user is still logged in.
+#Special function, special decorator -- not a request handler.
+#This runs before EVERY request and checks ALL incoming requests.
+@app.before_request
+def require_login():
+    #whitelist so people not logged in can see login page
+    #people not logged in can see these
+    allowed_routes = ['login', 'list_blogs', 'index', 'signup']
+    if request.endpoint not in allowed_routes and 'username' not in session:
+        return redirect('/login')
+
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
@@ -157,7 +169,7 @@ def validate_input(username, password, verify):
 #Ends new for blogz
 
 @app.route('/blog', methods=['POST', 'GET'])
-def index():
+def list_blogs():
 
     single_id = request.args.get("id")
     if single_id:
@@ -165,7 +177,7 @@ def index():
         return render_template("single_post.html", blog=blog)
     else:
         blogs = Blog.query.all()
-        return render_template('index.html', title="Grr", blogs=blogs)
+        return render_template('list_blogs.html', title="Grr", blogs=blogs)
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
