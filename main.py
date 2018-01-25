@@ -124,20 +124,16 @@ def validate_input(username, password, verify):
     #Use this on username.
     if len(username) == 0:
         username_error = "Oops! This field can't be empty. Please choose a username 3-30 characters long."
-
     elif not 3 < len(username) <= 30:
         username_error = "I'm sorry, but your username must be 3-30 characters."
-
     elif " " in username:
         username_error = "Hmm ... username can't contain a space."
 
     #Use this on password:
     if len(password) == 0:
         password_error = "Oops! This field can't be empty. Please choose a password 3-30 characters long."
-
     elif not 3 <= len(password) <= 30:
-        password_error = "I'm sorry, but password must be 3-30 characters." 
- 
+        password_error = "I'm sorry, but password must be 3-30 characters."  
     elif " " in password:
         password_error = "Hmm ... password can't contain a space."
 
@@ -201,6 +197,11 @@ def new_post():
             return redirect("/blog?id={0}".format(single_id))
 
     return render_template('new_post.html')
+
+@app.route('/logout')
+def logout():
+    del session['username']
+    return redirect('/blog')
 
 if __name__ == '__main__':
     app.run()
