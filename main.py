@@ -181,6 +181,10 @@ def list_blogs():
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
+    #Starts new for blogz
+    #Specifies that the owner is the user currently signed in.
+    owner = User.query.filter_by(username=session['username']).first()
+    #Ends new for blogz
 
     if request.method == 'POST':
         title = request.form['title']
