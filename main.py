@@ -64,7 +64,8 @@ def require_login():
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('/index')    
+    users = User.query.all()
+    return render_template('index.html', users=users)    
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
