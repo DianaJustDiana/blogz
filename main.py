@@ -24,6 +24,7 @@ class Blog(db.Model):
     body = db.Column(db.String(14000))
 
     #Starts new for blogz
+    #Could have named this anything -- didn't have to have _id at the end.
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __init__(self, title, body, owner):
@@ -65,20 +66,21 @@ def index():
     #This shows every username, regardless of whether that user posted a blog entry.
     #That makes no sense.
     #Need to iterate through users and filter out users whose blogs are not null.
-    users = User.query.all()
-    return render_template('index.html', users=users)    
+    all_the_users = User.query.all()
+    #It's called "users" in the template but "all_the_users" in function.
+    return render_template('index.html', users=all_the_users)    
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = User.query.filter_by(username=username).first()
+        username_as_entered_in_login_form = request.form['username']
+        password_as_entered_in_login_form = request.form['password']
+        user_exists_in_db = User.query.filter_by(username=username_as_entered_in_login_form).first()
         #First part checks if user exists (True) and second part checks if password matches.
-        if user:
-            if user.password == password:
+        if user_exists_in_db:
+            if user_exists_in_db.password == password_as_entered_in_login_form:
                 #remember the user by adding dict key of username
-                session['username'] = username
+                session['username'] = username_as_entered_in_login_form
                 #add flash message to display to the user
                 flash('Logged in')
                 return redirect('/newpost')
@@ -87,7 +89,7 @@ def login():
                 #second parameter is category; it connects to html in base.html
                 flash("Sorry, that's not your password. Try again, please.", 'error')
                 #Redisplay the form. Populate the username with the previously entered info.
-                return render_template('login.html', username=username)
+                return render_template('login.html', username=username_as_entered_in_login_form)
 
         #In case the user doesn't exist at all.
         else:
@@ -101,12 +103,12 @@ def login():
 def signup():
     
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username_as_entered_in_signup_form = request.form['username']
+        password_as_entered_in_signup_form = request.form['password']
         verify = request.form['verify']
 
         #See if user already exists in db.
-        existing_user = User.query.filter_by(username=username).first()
+        existing_user = User.query.filter_by(username=username_as_entered_in_signup_form).first()
         if existing_user:
             #Tell user they already exist in db.
             flash("I'm sorry, but that username is already taken.", 'error')
@@ -115,14 +117,14 @@ def signup():
         
         else:
             #Call validate_input() here. 
-            if validate_input(username, password, verify) == True:
+            if validate_input(username_as_entered_in_signup_form, password_as_entered_in_signup_form, verify) == True:
 
-                new_user = User(username, password)
+                new_user = User(username_as_entered_in_signup_form, password_as_entered_in_signup_form)
                 db.session.add(new_user)
                 db.session.flush()
                 db.session.commit()
                 #Remember the user by adding dict key of username.
-                session['username'] = username
+                session['username'] = username_as_entered_in_signup_form
             
                 #####LEFT OFF HERE
                 return redirect('/newpost')
@@ -173,12 +175,12 @@ def validate_input(username, password, verify):
 @app.route('/blog', methods=['POST', 'GET'])
 def list_blogs():
         
-    single_id = request.args.get("id")
+    user_who_just_added_post = request.args.get("id")
     user_you_want = request.args.get("user_you_want")
 
-    if single_id:
-        blog = Blog.query.filter_by(id=single_id).first()
-        return render_template("single_post.html", blog=blog)
+    if user_who_just_added_post:
+        blog = Blog.query.filter_by(id=user_who_just_added_post).first()
+        return render_template("most_recent_single_post.html", blog=blog)
     elif user_you_want:
         blogs = Blog.query.filter_by(owner_id=user_you_want).all()
         return render_template('all_posts_of_one_user.html', title="hmm", blogs=blogs)

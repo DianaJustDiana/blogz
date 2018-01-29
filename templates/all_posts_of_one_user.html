@@ -3,6 +3,10 @@
 {% block content %}
     <h1>This should display all blog entries from chosen user</h1>
     
+    {% if blogs|length == 0 %}
+    <p>No blog entries yet</p>
+    {% else %}
+
         <ul>
             {% for blog in blogs %}
             
@@ -11,7 +15,7 @@
             </li>
             {% endfor %}
         </ul>
-
+    {% endif %}
 
 {% endblock %}
 
