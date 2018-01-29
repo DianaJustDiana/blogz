@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>This should display all blog entries from chosen user</h1>
+    
+        <ul>
+            {% for blog in blogs %}
+            
+            <li>
+                <a href="/all_posts_of_one_user?id={{ blog.id }}">{{ blog.title }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+
+
+{% endblock %}
+
