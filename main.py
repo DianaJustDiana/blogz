@@ -15,7 +15,6 @@ db = SQLAlchemy(app)
 #I typed this in -- not a real one.
 app.secret_key = 'abc123'
 
-
 class Blog(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
@@ -50,20 +49,22 @@ class User(db.Model):
 #Ends tweak for blogz
 
 #Starts new for blogz
-
 #Check to see if user is still logged in.
 #Special function, special decorator -- not a request handler.
 #This runs before EVERY request and checks ALL incoming requests.
 @app.before_request
 def require_login():
-    #whitelist so people not logged in can see login page
-    #people not logged in can see these
+    #Whitelist -- people not logged in can see these:
     allowed_routes = ['login', 'list_blogs', 'index', 'signup']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
 
 @app.route('/', methods=['GET'])
 def index():
+    #TODO If a username has no associated blog entries, it shouldn't be a clickable link.
+    #This shows every username, regardless of whether that user posted a blog entry.
+    #That makes no sense.
+    #Need to iterate through users and filter out users whose blogs are not null.
     users = User.query.all()
     return render_template('index.html', users=users)    
 
@@ -132,10 +133,8 @@ def signup():
 def validate_input(username, password, verify):
     #username = request.form['username']
     username_error = ""
-
     #password = request.form['password']
     password_error = ""
-    
     #verify = request.form['verify']
     verify_error = ""
     #Use this on username.
@@ -143,8 +142,10 @@ def validate_input(username, password, verify):
         username_error = "Oops! This field can't be empty. Please choose a username 3-30 characters long."
     elif not 3 < len(username) <= 30:
         username_error = "I'm sorry, but your username must be 3-30 characters."
+        username = ''
     elif " " in username:
         username_error = "Hmm ... username can't contain a space."
+        username = ''
 
     #Use this on password:
     if len(password) == 0:
@@ -158,7 +159,6 @@ def validate_input(username, password, verify):
     if password != verify and not password_error:
         verify_error = "Whoops! These didn't match. Please try again."
 
-    ###LEFT OFF HERE        
     if not username_error and not password_error and not verify_error:
         return True
     else:
@@ -168,21 +168,24 @@ def validate_input(username, password, verify):
             flash(password_error, 'error')
         elif verify_error:
             flash(verify_error, 'error')
-        return render_template('signup.html', username=username)
-
-    
-#Ends new for blogz
+        return render_template('signup.html', username=username)  
 
 @app.route('/blog', methods=['POST', 'GET'])
 def list_blogs():
-
+        
     single_id = request.args.get("id")
+    user_you_want = request.args.get("user_you_want")
+
     if single_id:
         blog = Blog.query.filter_by(id=single_id).first()
         return render_template("single_post.html", blog=blog)
+    elif user_you_want:
+        blogs = Blog.query.filter_by(owner_id=user_you_want).all()
+        return render_template('all_posts_of_one_user.html', title="hmm", blogs=blogs)
     else:
         blogs = Blog.query.all()
         return render_template('list_blogs.html', title="Grr", blogs=blogs)
+#Ends new for blogz
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
