@@ -11,7 +11,11 @@
             {% for blog in blogs %}
             
             <li>
-                <a href="/all_posts_of_one_user?id={{ blog.id }}">{{ blog.title }}</a>
+                <ul>
+                    <h1>{{ blog.title }}</h1>
+                    <h3>{{ blog.body }}</h3>
+                </ul>
+                <br>
             </li>
             {% endfor %}
         </ul>
