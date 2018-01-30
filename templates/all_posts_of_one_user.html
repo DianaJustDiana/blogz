@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>This should display all blog entries from chosen user</h1>
+    <h1>All the blog entries by {{ user.username }}</h1>
     
     {% if blogs|length == 0 %}
-    <p>No blog entries yet</p>
+    <p>Hmm .. {{ user.username }} seems to have writer's block.</p>
     {% else %}
 
         <ul>

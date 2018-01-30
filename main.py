@@ -184,8 +184,11 @@ def list_blogs():
         blog = Blog.query.filter_by(id=user_who_just_added_post).first()
         return render_template("most_recent_single_post.html", blog=blog)
     elif user_you_want:
+        #This fetches all blog entries from the author you're interested in.
         blogs = Blog.query.filter_by(owner_id=user_you_want).all()
-        return render_template('all_posts_of_one_user.html', title="hmm", blogs=blogs)
+        #This fetches the username of that author.
+        author = User.query.filter_by(id=user_you_want).first()
+        return render_template('all_posts_of_one_user.html', title="hmm", blogs=blogs, user=author)
     else:
         blogs = Blog.query.all()
         return render_template('list_of_all_blog_posts.html', title="Grr", blogs=blogs)
