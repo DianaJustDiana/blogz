@@ -56,6 +56,7 @@ class User(db.Model):
 @app.before_request
 def require_login():
     #Whitelist -- people not logged in can see these:
+    #These are the def names, not the /route names.
     allowed_routes = ['login', 'list_blogs', 'index', 'signup']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
