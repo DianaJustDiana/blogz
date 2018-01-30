@@ -132,6 +132,7 @@ def signup():
 
     return render_template('signup.html')
 
+#No need for highly descriptive variable names here because it's a function.
 def validate_input(username, password, verify):
     #username = request.form['username']
     username_error = ""
@@ -186,14 +187,14 @@ def list_blogs():
         return render_template('all_posts_of_one_user.html', title="hmm", blogs=blogs)
     else:
         blogs = Blog.query.all()
-        return render_template('list_blogs.html', title="Grr", blogs=blogs)
+        return render_template('list_of_all_blog_posts.html', title="Grr", blogs=blogs)
 #Ends new for blogz
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
     #Starts new for blogz
     #Specifies that the owner is the user currently signed in.
-    owner = User.query.filter_by(username=session['username']).first()
+    current_user_is_owner_of_blog_post = User.query.filter_by(username=session['username']).first()
     #Ends new for blogz
 
     if request.method == 'POST':
@@ -202,27 +203,27 @@ def new_post():
         
         if len(title) == 0 and len(body) == 0:
             flash("Whoa, slow down! You were a little quick to hit that button.", 'error')
-            return render_template('new_post.html')        
+            return render_template('create_new_post.html')        
         elif len(title) == 0:
             flash('Oops! You forgot to put a title on your blog entry.', 'error')
-            return render_template('new_post.html', body=body)
+            return render_template('create_new_post.html', body=body)
         elif len(body) == 0:
             flash('Not so fast! Nice title, but where is your body copy?', 'error')
-            return render_template('new_post.html', title=title)
+            return render_template('create_new_post.html', title=title)
 
         else:
             #Starts tweak for blogz
-            new_entry = Blog(title, body, owner)
+            new_entry = Blog(title, body, current_user_is_owner_of_blog_post)
             #Ends tweak for blogz
 
             db.session.add(new_entry)
             db.session.flush()
             db.session.commit()
 
-            single_id = new_entry.id
-            return redirect("/blog?id={0}".format(single_id))
+            newest_post = new_entry.id
+            return redirect("/blog?id={0}".format(newest_post))
 
-    return render_template('new_post.html')
+    return render_template('create_new_post.html')
 
 @app.route('/logout')
 def logout():
