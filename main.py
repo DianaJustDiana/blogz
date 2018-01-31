@@ -194,21 +194,21 @@ def list_blogs():
     else:
         #This fetches all blog entries regardless of author.
         blogs = Blog.query.all()
-        #from patrick
+        return render_template('list_of_all_blog_posts.html', title="Grr", blogs=blogs)
+
+        #alternate approach from patrick:
         #This iterates over all the blog objects and grabs the owner info and blog info.
         #Content_list holds everything. Access by chaining together pieces like this: content.owner.id.
         #See templates for two examples.
-
         #Sets up empty list.
-        content_list = []
+        #content_list = []
         #Iterate over blogs.
-        for blog in blogs:
+        #for blog in blogs:
             #Dictionary holds db search. Can access object attribute/table columns from "content."
-            content = { "owner": User.query.filter_by(id=blog.owner_id).first(), "blog": blog }
+            #content = { "owner": User.query.filter_by(id=blog.owner_id).first(), "blog": blog }
             #After each iteration add results to list called "content_list."
-            content_list.append(content)
-        
-        return render_template('list_of_all_blog_posts.html', title="Grr", content_list=content_list)
+            #content_list.append(content)  
+        #return render_template('list_of_all_blog_posts.html', title="Grr", content_list=content_list)
 #Ends new for blogz
 
 @app.route('/newpost', methods=['POST', 'GET'])
