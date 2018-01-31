@@ -183,15 +183,32 @@ def list_blogs():
     if user_who_just_added_post:
         blog = Blog.query.filter_by(id=user_who_just_added_post).first()
         return render_template("most_recent_single_post.html", blog=blog)
+
     elif user_you_want:
         #This fetches all blog entries from the author you're interested in.
         blogs = Blog.query.filter_by(owner_id=user_you_want).all()
         #This fetches the username of that author.
         author = User.query.filter_by(id=user_you_want).first()
         return render_template('all_posts_of_one_user.html', title="hmm", blogs=blogs, user=author)
+    
     else:
+        #This fetches all blog entries regardless of author.
         blogs = Blog.query.all()
-        return render_template('list_of_all_blog_posts.html', title="Grr", blogs=blogs)
+        #from patrick
+        #This iterates over all the blog objects and grabs the owner info and blog info.
+        #Content_list holds everything. Access by chaining together pieces like this: content.owner.id.
+        #See templates for two examples.
+
+        #Sets up empty list.
+        content_list = []
+        #Iterate over blogs.
+        for blog in blogs:
+            #Dictionary holds db search. Can access object attribute/table columns from "content."
+            content = { "owner": User.query.filter_by(id=blog.owner_id).first(), "blog": blog }
+            #After each iteration add results to list called "content_list."
+            content_list.append(content)
+        
+        return render_template('list_of_all_blog_posts.html', title="Grr", content_list=content_list)
 #Ends new for blogz
 
 @app.route('/newpost', methods=['POST', 'GET'])
